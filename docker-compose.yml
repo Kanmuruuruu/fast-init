@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+  frontend_server:
+    image: frontend
+    build: ./front
+    ports:
+      - 3000:3000
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080
+    container_name: frontend
+    depends_on:
+      - backend_server
+
+  backend_server:
+    image: backend
+    build: ./back
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_HOST=postgres_server
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DATABASE=postgres
+      - REQUEST_ORIGIN=http://localhost
+
+    container_name: backend
+    depends_on:
+      - postgres_server
+
+  postgres_server:
+    image: postgres:13.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+    container_name: postgres
+    volumes:
+      - database:/var/lib/postgresql/data
+
+
+volumes:
+  database:
